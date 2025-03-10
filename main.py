@@ -31,9 +31,7 @@ def get_video_results(search_term, count):
     options.add_argument("--headless")
     options.add_argument("--disable-dev-shm-usage")
     
-    chromedriver_autoinstaller.install()
-
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     driver.get(f'https://www.youtube.com/results?search_query={"+".join(search_term.split())}')
 
     youtube_data = []
@@ -71,12 +69,13 @@ def get_video_results(search_term, count):
         if title and link and views:
             if link[:30] == "https://www.youtube.com/shorts":
                 if link not in seen_links:
-                    youtube_data.append({
-                        'title': title,
-                        'link': link,
-                        'views': views,
-                    })
-                    seen_links.add(link)
+                    if views.split()[0][-1] == 'M':
+                        youtube_data.append({
+                            'title': title,
+                            'link': link,
+                            'views': views,
+                        })
+                        seen_links.add(link)
 
         if len(youtube_data) >= count:
             break
